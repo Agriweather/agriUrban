@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>阿龜：農用儀表板</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+
+    <!-- Theme CSS -->
+    <link href="css/grayscale.min.css" rel="stylesheet">
+    <link href="css/flexslider.css" rel="stylesheet">
+    <link href="css/agri-chart.css" rel="stylesheet">
+    
+    <link href="http://52.175.204.58/Content/css/weather-icons.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+                    Menu <i class="fa fa-bars"></i>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">
+                    <i class="fa fa-dashboard"></i> <span class="light">Agri</span> DASHBOARD
+                </a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+                <ul class="nav navbar-nav">
+                    <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                    <li class="hidden">
+                        <a href="#page-top"></a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#dashboard">遠端監控</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#download">系統管理</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#contact">關於阿龜</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Intro Header -->
+    <header class="intro">
+        <div class="intro-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <img src="img/logo2.png" alt="agriweather" style="width:40%;height:40%;">
+                        <h1 class="brand-heading">Agri Dashboard</h1>
+                        <p class="intro-text">AgriWeather in Urban Farmer :: Taiwan</p>
+                        <a href="#dashboard" class="btn btn-circle page-scroll">
+                            <i class="fa fa-angle-double-down animated"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="container content-section text-center">
+        <div class="row">
+            <div class="col-xs-12 col-md-6 delay-1s text-left">
+                <h2><i class="fa fa-th-large"></i> Agri實驗田-1 &nbsp;&nbsp;
+                    <span id="play-chart" style="cursor:pointer"><i class="fa fa-play-circle-o"></i></span>&nbsp;
+                    <span id="pause-chart" style="cursor:pointer"><i class="fa fa-pause-circle-o"></i></span>&nbsp;
+                    <span id="toggle-setting" style="cursor:pointer"><i class="fa fa-cog" aria-hidden="true"></i></span>
+                </h2>
+                <span id="agri-setting" style="display: none;"><input id="start-time" type="text" name="start-time" value="2017-06-30 16:00:00" style="color:black;"></span>
+            </div>
+            <div class="col-xs-12 col-md-3 delay-1s text-center" style="border:dotted;">作物：福山萵苣（大陸妹）</div>
+            <div class="col-xs-12 col-md-3 delay-1s text-right"><span id="lunar-date">立秋 後 4 天, 11 天後 处暑</span>
+            </div>
+        </div>
+        <div> </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="slides">
+                    <li>
+                        <div class="col-xs-12 col-md-3 wp4 delay-1s">
+                            <h4><i class="wi wi-thermometer"></i> 大氣溫度</h4>
+                            <h1><span id="wt"></span>℃</h1>
+                            <div id="main1" style="width: 100%; height:250px; position: relative; top: -80px ;margin: 0px auto;"></div>
+                        </div>
+                        <div class="col-xs-12 col-md-3 wp4 delay-1s">
+                            <h4><i class="wi wi-humidity"></i> 大氣濕度</h4>
+                            <h1><span id="wh"></span>%</h1>
+                            <div id="main2" style="width: 100%;height:250px; position: relative; top: -80px ;margin: 0px auto;"></div>
+                        </div>
+                        <div class="col-xs-12 col-md-3 wp4 delay-1s">
+                            <h4><i class="wi wi-sunrise"></i> 光照強度</h4>
+                            <div id="main3" style="width: 100%;height:200px;position: relative; top: 30px;margin: 0px auto;"></div>
+                        </div>
+                        <div class="col-xs-12 col-md-3 wp4 delay-1s">
+                            <h4><i class="wi wi-rain"></i> 是否降雨</h4>
+                            <h1>無雨</h1>
+                            <div id="main4" style="width: 100%;height:250px;position: relative; top: -80px ;margin: 0px auto;"></div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="col-xs-12 col-md-6 wp6 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
+                            <h4><i class="wi wi-dust"></i> 土壤溫度變化</h4>
+                            <div id="main5" style="width: 100%;height:300px;"></div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 wp6 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
+                            <h4><i class="wi wi-dust"></i> 土壤含水量變化</h4>
+                            <div id="main6" style="width: 100%;height:300px;"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center">
+            <p>
+                <a href="https://grants.g0v.tw/power/" target="_blank"><img src="https://grants.g0v.tw/images/power/poweredby-long-i.svg" alt="Powered by g0v" style="width:35%;height:35%"/></a>
+                <span class="copyright">Copyright &copy; 2017 <a href="https://www.facebook.com/agriweather/" target="_blank">阿龜微氣候天眼通團隊</a> All Rights Reserved.</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- ================================================== -->
+    <!-- 圖表生成區塊 -->
+
+    <!-- ================================================== -->
+
+    <!-- jQuery -->
+    <script src="vendor/jquery/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+
+    <!-- Google Maps API Key - Use your own API key to enable the map feature. More information on the Google Maps API can be found at https://developers.google.com/maps/ -->
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCRngKslUGJTlibkQ3FkfTxj3Xss1UlZDA&sensor=false"></script>
+
+    <!-- Theme JavaScript -->
+    <script src="js/grayscale.min.js"></script>
+    <script src="js/jquery.flexslider.js"></script>
+
+    <!-- echarts -->
+    <script src="./js/echarts.min.js"></script>
+    <script src="./js/dark.js"></script>
+
+    <!-- <script src="./js/agri-chart.js"></script> -->
+    <script src="./js/lunar.js"></script>
+    <script src="./js/agri-dashboard.js"></script>
+
+</body>
+
+</html>

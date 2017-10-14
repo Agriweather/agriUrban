@@ -1,0 +1,21 @@
+.agri-panel-title{
+    margin: 0 0 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 1rem;
+}
+
+.agri-panel-submsg {
+    margin: 0 0 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 1.3rem;
+}
+
+.sub-msg {
+    z-index: 50;
+}
+
+.status-runing {
+    text-shadow: rgb(255, 255, 255) 0px 0px 10px;
+}
