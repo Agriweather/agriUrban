@@ -5,9 +5,10 @@ Agriweather = (function(){
     // this line declares the module dependency and
     // gives the global variable a local reference.
     var $ = window.jQuery;
-
-    var BASE_URL = 'http://52.175.204.58/MobileV2/GetAgriSensorData';
-
+    var hostName = location.hostname;
+    hostName += ":8080";
+    // var BASE_URL = 'http://52.175.204.58/MobileV2/GetAgriSensorData';
+    var BASE_URL = "http://" + hostName + "/MobileV2/Monitor";
     var sensorData , weatherboxData, sensorDataQueue, weatherboxDataQueue;
 
     var myChart1, myChart2, myChart3, myChart4, myChart5, myChart6;
@@ -71,8 +72,8 @@ Agriweather = (function(){
             url: BASE_URL,
             data: {
                 sensorName: sensorName,
-                start: startTime,
-                end: endTime
+                //start: startTime,
+                //end: endTime
             }
         }).done(function(rtnData){
             // console.log(rtnData.data.row);
@@ -110,8 +111,8 @@ Agriweather = (function(){
             url: BASE_URL,
             data: {
                 sensorName: boxName,
-                start: startTime,
-                end: endTime
+                //start: startTime,
+                //end: endTime
             }
         }).done(function(rtnData){
             $.each(rtnData.data.row, function(index, rowData){
@@ -796,3 +797,12 @@ $(document).ready(function(){
     });
 
 });
+
+setInterval(function() {
+    console.log('interval call')
+    var initStartTime = $('#start-time').val();
+    Agriweather.initialize();
+    Agriweather.drawSensor('FieldSensorV2.1-001', null, null);
+    Agriweather.drawWeatherbox('FieldSensorV2.1-001', null, null);
+    $('#lunar-date').text(Agriweather.converLunar(initStartTime));
+}, 3000)
