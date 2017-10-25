@@ -103,18 +103,19 @@ Agriweather = (function(){
                     weatherboxData.humidity.push({value: [rowData.cd, rowData.data[1]]});
                     weatherboxData.illuminance.push(rowData.data[3]);
                     weatherboxData.rainfall.push(!rowData.data[8]?0:rowData.data[8]);
-                    //6 direction
-                    //7 speed
-                    // for(var key in directionMap) {
-                    //     console.log(entry);
-                    // }
+
                     var winddirection = rowData.data[6];
-                    var preKey = 'W';
+                    var targetKey = 'W';
+                    var rotate = 0;
                     for(var key in directionMap) {
-                        if (winddirection === 0 || winddirection > (directionMap[key] * 50)) break;
-                        preKey = key;
+                        rotate = directionMap[key] === 0 ? 0 : (directionMap[key] * 50)
+                        if (winddirection === 0 || winddirection === 360 || winddirection <= rotate) {
+                            targetKey = key;
+                            break;
+                        }
                     }
-                    weatherboxData.winddirection.push(preKey);
+
+                    weatherboxData.winddirection.push(targetKey);
                     weatherboxData.windspeed.push(rowData.data[7]);
                     //weatherboxData.windspeed.push(11);
                 }
