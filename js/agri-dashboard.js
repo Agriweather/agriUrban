@@ -1,4 +1,5 @@
 var Agriweather;
+var defaultSensorName = 'FieldSensorV2.1-001';
 
 Agriweather = (function(){
     if (!window.jQuery) { throw new Error("LikeButtonModule requires jQuery") }
@@ -7,13 +8,15 @@ Agriweather = (function(){
     var $ = window.jQuery;
     var hostName = location.hostname;
     hostName += ":8080";
+    var drawing = false;
     // var BASE_URL = 'http://52.175.204.58/MobileV2/GetAgriSensorData';
     var BASE_URL = "http://" + hostName + "/MobileV2/Monitor";
     var sensorData , weatherboxData, sensorDataQueue, weatherboxDataQueue;
 
-    var myChart1, myChart2, myChart3, myChart4, myChart5, myChart6;
-    var sensorTimeHandle = null, weatherboxTimeHandle = null;
-
+    var myChart1, myChart2, myChart3, myChart4, myChart5, myChart6, myChart8;
+    var sensorTimeHandle = null, weatherboxTimeHandle = null, monitorTimeHandle;
+    var directionMap = {};
+    
     /**
      * 初始化
      */
@@ -25,6 +28,7 @@ Agriweather = (function(){
             surfaceTmpData: [],
             deepHmData: [],
             surfaceHmData: [],
+            snapshot: []
         }
     
         weatherboxData = {
@@ -33,6 +37,8 @@ Agriweather = (function(){
             humidity: [],
             illuminance: [],
             rainfall:[],
+            windspeed:[],
+            winddirection:[]
         }
     
         sensorDataQueue = {
@@ -41,6 +47,7 @@ Agriweather = (function(){
             surfaceTmpData: [],
             deepHmData: [],
             surfaceHmData: [],
+            snapshot: []
         }
     
         weatherboxDataQueue = {
@@ -49,6 +56,8 @@ Agriweather = (function(){
             humidity: [],
             illuminance: [],
             rainfall:[],
+            windspeed:[],
+            winddirection:[]
         }
 
         myChart1 = echarts.init(document.getElementById('main1'), 'dark');
@@ -57,6 +66,84 @@ Agriweather = (function(){
         myChart4 = echarts.init(document.getElementById('main4'), 'dark');
         myChart5 = echarts.init(document.getElementById('main5'), 'dark');
         myChart6 = echarts.init(document.getElementById('main6'), 'dark');
+        myChart8 = echarts.init(document.getElementById('main8'), 'dark');
+
+        echarts.util.each(
+            ['W', 'WSW', 'SW', 'SSW', 'S', 'SSE', 'SE', 'ESE', 'E', 'ENE', 'NE', 'NNE', 'N', 'NNW', 'NW', 'WNW'],
+            function (name, index) {
+                directionMap[name] = Math.PI / 8 * index;
+            }
+        );
+    }
+
+    var drawMonitor = function(sensorName){
+        var jqxhr = $.ajax({
+            method: 'POST',
+            url: BASE_URL,
+            data: {
+                sensorName: sensorName,
+				limit: 5
+            }
+        }).done(function(rtnData){
+            // console.log(rtnData.data.row);
+            console.log(rtnData);
+            $.each(rtnData.data.row, function(index, rowData){
+                if($.inArray(rowData.cd, sensorData.recTime) >= 0){
+                    console.log('Exist!');
+                } else {
+                    sensorData.recTime.push(rowData.cd);
+                    sensorData.deepTmpData.push(rowData.data[4]);
+                    sensorData.surfaceTmpData.push(rowData.data[4]);
+                    sensorData.deepHmData.push(rowData.data[5]);
+                    sensorData.surfaceHmData.push(rowData.data[5]);
+                    sensorData.snapshot.push(rowData.data[9]);
+
+                    weatherboxData.recTime.push(rowData.cd);
+                    weatherboxData.temperature.push({value: [rowData.cd, rowData.data[0]]});
+                    weatherboxData.humidity.push({value: [rowData.cd, rowData.data[1]]});
+                    weatherboxData.illuminance.push(rowData.data[3]);
+                    weatherboxData.rainfall.push(!rowData.data[8]?0:rowData.data[8]);
+                    //6 direction
+                    //7 speed
+                    // for(var key in directionMap) {
+                    //     console.log(entry);
+                    // }
+                    var winddirection = rowData.data[6];
+                    var preKey = 'W';
+                    for(var key in directionMap) {
+                        if (winddirection === 0 || winddirection > (directionMap[key] * 50)) break;
+                        preKey = key;
+                    }
+                    weatherboxData.winddirection.push(preKey);
+                    weatherboxData.windspeed.push(rowData.data[7]);
+                    //weatherboxData.windspeed.push(11);
+                }
+            });
+            drawing = true;
+            _drawSoilTemperature(sensorData);
+            _drawSoilHumidity(sensorData);
+            _drawFieldSnapshot(sensorData);
+
+            _drawWeatherTemperature(weatherboxData);
+            _drawWeatherHumidity(weatherboxData);
+            _drawIlluminance(weatherboxData);
+            _drawRainfall(weatherboxData);
+            _drawWindspendAnddirection(weatherboxData);
+            drawing = false;
+            // console.log(sensorData);
+        }).fail(function(){
+
+        }).always(function(){
+//            _drawSoilTemperature(sensorData);
+//            _drawSoilHumidity(sensorData);
+//            _drawFieldSnapshot(sensorData);
+//
+//            _drawWeatherTemperature(weatherboxData);
+//            _drawWeatherHumidity(weatherboxData);
+//            _drawIlluminance(weatherboxData);
+//            _drawRainfall(weatherboxData);
+        	$('#lunar-date').text(moment().format('YYYY-MM-DD HH:mm:ss'));
+        });
     }
 
     /**
@@ -72,6 +159,7 @@ Agriweather = (function(){
             url: BASE_URL,
             data: {
                 sensorName: sensorName,
+				limit: 5
                 //start: startTime,
                 //end: endTime
             }
@@ -87,6 +175,7 @@ Agriweather = (function(){
                     sensorData.surfaceTmpData.push(rowData.data[4]);
                     sensorData.deepHmData.push(rowData.data[5]);
                     sensorData.surfaceHmData.push(rowData.data[5]);
+                    sensorData.snapshot.push(rowData.data[9]);
                 }
             });
             // console.log(sensorData);
@@ -95,6 +184,7 @@ Agriweather = (function(){
         }).always(function(){
             _drawSoilTemperature(sensorData);
             _drawSoilHumidity(sensorData);
+            _drawFieldSnapshot(sensorData);
         });
     }
 
@@ -111,6 +201,7 @@ Agriweather = (function(){
             url: BASE_URL,
             data: {
                 sensorName: boxName,
+				limit: 5
                 //start: startTime,
                 //end: endTime
             }
@@ -175,7 +266,7 @@ Agriweather = (function(){
                 }
             },
             series: [{
-                name: '大氣溫度',
+                name: 'temperature',
                 type: 'line',
                 showSymbol: false,
                 hoverAnimation: false,
@@ -236,7 +327,7 @@ Agriweather = (function(){
                 }
             },
             series: [{
-                name: '大氣溼度',
+                name: 'humidity',
                 type: 'line',
                 showSymbol: false,
                 hoverAnimation: false,
@@ -271,7 +362,7 @@ Agriweather = (function(){
             **/
             series: [
                 {
-                    name: '光照',
+                    name: 'shine',
                     type: 'gauge',
                     min: 0,
                     max: 10000,
@@ -391,14 +482,14 @@ Agriweather = (function(){
         
         var option5 = {
             title: {
-                text: '土溫變化',
+                //text: 'temperature of soil chagne',
                 // subtext: '最後更新時間：2017-07-01 11:06:29'
             },
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['淺層土温', '深層土温']
+                data: ['shallow layer temperature', 'deep layer temperature']
             },
             xAxis: {
                 type: 'category',
@@ -413,23 +504,23 @@ Agriweather = (function(){
             },
             series: [
                 {
-                    name: '淺層土温',
+                    name: 'shallow layer temperature',
                     type: 'line',
                     data: sensorData.surfaceTmpData,
                     markPoint: {
                         data: [
-                            { type: 'max', name: '最大值' },
-                            { type: 'min', name: '最小值' }
+                            { type: 'max', name: 'max' },
+                            { type: 'min', name: 'min' }
                         ]
                     },
                     markLine: {
                         data: [
-                            { type: 'average', name: '平均值' }
+                            { type: 'average', name: 'average' }
                         ]
                     }
                 },
                 {
-                    name: '深層土温',
+                    name: 'deep layer temperature',
                     type: 'line',
                     data: sensorData.deepTmpData,
                     markPoint: {
@@ -439,7 +530,7 @@ Agriweather = (function(){
                     },
                     markLine: {
                         data: [
-                            { type: 'average', name: '平均值' },
+                            { type: 'average', name: 'average' },
                             [{
                                 symbol: 'none',
                                 x: '90%',
@@ -449,11 +540,11 @@ Agriweather = (function(){
                                 label: {
                                     normal: {
                                         position: 'start',
-                                        formatter: '最大值'
+                                        formatter: 'max'
                                     }
                                 },
                                 type: 'max',
-                                name: '最高点'
+                                name: 'max'
                             }]
                         ]
                     }
@@ -472,14 +563,14 @@ Agriweather = (function(){
     var _drawSoilHumidity = function(sensorData){
         var option6 = {
             title: {
-                text: '濕度變化',
+                //text: 'moisture contents change',
                 // subtext: '最後更新時間：2017-07-01 11:06:29'
             },
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['淺層濕度', '深層濕度']
+                data: ['shallow layer humidity', 'deep layer humidity']
             },
             xAxis: {
                 type: 'category',
@@ -494,33 +585,33 @@ Agriweather = (function(){
             },
             series: [
                 {
-                    name: '淺層濕度',
+                    name: 'shallow layer humidity',
                     type: 'line',
                     data: sensorData.surfaceHmData,
                     markPoint: {
                         data: [
-                            { type: 'max', name: '最大值' },
-                            { type: 'min', name: '最小值' }
+                            { type: 'max', name: 'max' },
+                            { type: 'min', name: 'min' }
                         ]
                     },
                     markLine: {
                         data: [
-                            { type: 'average', name: '平均值' }
+                            { type: 'average', name: 'average' }
                         ]
                     }
                 },
                 {
-                    name: '深層濕度',
+                    name: 'deep layer humidity',
                     type: 'line',
                     data: sensorData.deepHmData,
                     markPoint: {
                         data: [
-                            { name: '最低', value: -2, xAxis: 1, yAxis: -1.5 }
+                            { name: 'min', value: -2, xAxis: 1, yAxis: -1.5 }
                         ]
                     },
                     markLine: {
                         data: [
-                            { type: 'average', name: '平均值' },
+                            { type: 'average', name: 'average' },
                             [{
                                 symbol: 'none',
                                 x: '90%',
@@ -530,11 +621,11 @@ Agriweather = (function(){
                                 label: {
                                     normal: {
                                         position: 'start',
-                                        formatter: '最大值'
+                                        formatter: 'max'
                                     }
                                 },
                                 type: 'max',
-                                name: '最高点'
+                                name: 'max'
                             }]
                         ]
                     }
@@ -545,6 +636,224 @@ Agriweather = (function(){
         myChart6.setOption(option6);
     }
 
+    /**
+     * 繪製「田間視野」圖形
+     * 
+     * @param {object} sensorData 
+     */
+    var _drawFieldSnapshot = function(sensorData) {
+        var carousel = $('#main7 div.carousel-inner');
+        carousel.empty();
+
+        $.each(sensorData.snapshot, function(index, snapshot){
+            var divItem = document.createElement('div');
+            if (index === 0) {
+                divItem.className = 'item active';
+            } else divItem.className = 'item';
+                        
+            var image = new Image();
+            image.src = 'data:image/png;base64,' + snapshot;
+            image.style.width = '100%';
+            document.body.appendChild(image);
+
+            var divCarouselCaption =  document.createElement('div');
+            divCarouselCaption.className = 'carousel-caption';
+            divCarouselCaption.style.bottom = '-40px';
+            divCarouselCaption.innerHTML = '<h5>' + sensorData.recTime[index] + '</h5>';
+
+            divItem.appendChild(image);
+            divItem.appendChild(divCarouselCaption);
+
+            carousel.append(divItem);            
+        });
+    }
+
+    /**
+     * 繪製「風向風速圖」圖形
+     * 
+     * @param {object} weatherboxData 
+     */
+    var _drawWindspendAnddirection = function(weatherboxData) {
+        var data = [];
+
+        echarts.util.each(weatherboxData.recTime, function (time, index) {
+            data.push([time, weatherboxData.windspeed[index], weatherboxData.winddirection[index]]);
+        });
+    
+        var dims = {
+            time: 0,
+            windSpeed: 1,
+            R: 2
+        };
+        
+        var arrowSize = 18;
+    
+        function renderArrow(param, api) {
+            var point = api.coord([
+                api.value(dims.time),
+                api.value(dims.windSpeed)
+            ]);
+    
+            return {
+                type: 'path',
+                shape: {
+                    pathData: 'M31 16l-15-15v9h-26v12h26v9z',
+                    x: -arrowSize / 2,
+                    y: -arrowSize / 2,
+                    width: arrowSize,
+                    height: arrowSize
+                },
+                rotation: directionMap[api.value(dims.R)],
+                position: point,
+                style: api.style({
+                    stroke: '#555',
+                    lineWidth: 1
+                })
+            };
+        }
+    
+    
+        option8 = {
+            title: {
+                //text: '天气 风向 风速 海浪 预报',
+                //subtext: '示例数据源于 www.seabreeze.com.au',
+                //left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter: function (params) {
+                    return [
+                        echarts.format.formatTime('yyyy-MM-dd', params[0].value[dims.time])
+                        + ' ' + echarts.format.formatTime('hh:mm', params[0].value[dims.time]),
+                        'speed：' + params[0].value[dims.windSpeed],
+                        'direction：' + params[0].value[dims.R],
+                    ].join('<br>');
+                }
+            },
+            grid: {
+                top: 160,
+                bottom: 125
+            },
+            xAxis: {
+                type: 'time',
+                maxInterval: 3600 * 1000 * 24,
+                splitLine: {
+                    lineStyle: {
+                        color: '#ddd'
+                    }
+                }
+            },
+            yAxis: [{
+                name: 'wind speed（kt）',
+                nameLocation: 'middle',
+                nameGap: 35,
+                axisLine: {
+                    lineStyle: {
+                        color: '#666'
+                    }
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#ddd'
+                    }
+                }
+            }, {
+                axisLine: {show: false},
+                axisTick: {show: false},
+                axisLabel: {show: false},
+                splitLine: {show: false}
+            }],
+            visualMap: {
+                type: 'piecewise',
+                // show: false,
+                orient: 'horizontal',
+                left: 'center',
+                bottom: 10,
+                pieces: [{
+                    gte: 17,
+                    color: '#18BF12',
+                    label: 'Fresh（>= 17 kt）'
+                }, {
+                    gte: 11,
+                    lt: 17,
+                    color: '#f4e9a3',
+                    label: 'Moderate（11  ~ 17 kt）'
+                }, {
+                    lt: 11,
+                    color: '#D33C3E',
+                    label: 'Light（< 11 kt）'
+                }],
+                seriesIndex: 1,
+                dimension: 1
+            },
+            dataZoom: [{
+                type: 'inside',
+                xAxisIndex: 0,
+                minSpan: 5
+            }, {
+                type: 'slider',
+                xAxisIndex: 0,
+                minSpan: 5,
+                height: 20,
+                bottom: 50,
+                handleIcon: 'M10.7,11.9H9.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4h1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                handleSize: '120%'
+            }],
+            series: [{
+                type: 'line',
+                yAxisIndex: 1,
+                showSymbol: false,
+                hoverAnimation: false,
+                symbolSize: 10,
+                areaStyle: {
+                    normal: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0, color: 'rgba(88,160,253,1)'
+                            }, {
+                                offset: 0.5, color: 'rgba(88,160,253,0.7)'
+                            }, {
+                                offset: 1, color: 'rgba(88,160,253,0)'
+                            }]
+                        }
+                    }
+                },
+                lineStyle: {
+                    normal: {
+                        color: 'rgba(88,160,253,1)'
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        color: 'rgba(88,160,253,1)'
+                    }
+                },
+                encode: {
+                    x: dims.time,
+                    y: dims.windSpeed
+                },
+                data: data,
+                z: 2
+            }, {
+                type: 'custom',
+                renderItem: renderArrow,
+                encode: {
+                    x: dims.time,
+                    y: dims.windSpeed
+                },
+                data: data,
+                z: 10
+            }]
+        };
+    
+        myChart8.setOption(option8);
+    }
+    
     /**
      * 更新田間感測器圖形
      */
@@ -573,11 +882,14 @@ Agriweather = (function(){
 
         myChart5.setOption(option5);
         myChart6.setOption(option6);
+
+        _drawFieldSnapshot(sensorData);
     }
 
     var _updateWeatherboxChart = function(){
         var lastTemperature = weatherboxData.temperature[weatherboxData.temperature.length - 1];
-        $('#wt').text(Math.round(lastTemperature.value[1]));
+        //$('#wt').text(Math.round(lastTemperature.value[1]));
+        $('#wt').text(Math.round(lastTemperature));
         option1 = {
             series: [{
                 data: weatherboxData.temperature
@@ -586,7 +898,8 @@ Agriweather = (function(){
         myChart1.setOption(option1);
 
         var lastHumidity = weatherboxData.humidity[weatherboxData.humidity.length - 1];
-        $('#wh').text(Math.round(lastHumidity.value[1]));
+        // $('#wh').text(Math.round(lastHumidity.value[1]));
+        $('#wh').text(Math.round(lastHumidity));
         option2 = {
             series: [{
                 data: weatherboxData.humidity
@@ -614,15 +927,16 @@ Agriweather = (function(){
 
     var _getContinueSensor = function(sensorName){
         // console.log(sensorData);
-        var lastTime = sensorData.recTime[sensorData.recTime.length - 1];
-        var nextTime = moment(lastTime).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
+        //var lastTime = sensorData.recTime[sensorData.recTime.length - 1];
+        //var nextTime = moment(lastTime).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
         var jqxhr = $.ajax({
             method: 'POST',
             url: BASE_URL,
             data: {
                 sensorName: sensorName,
-                start: lastTime,
-                end: nextTime
+                limit: 5,
+                //start: lastTime,
+                //end: nextTime
             }
         }).done(function(rtnData){
             // console.log(rtnData.data.row);
@@ -636,6 +950,7 @@ Agriweather = (function(){
                     sensorDataQueue.surfaceTmpData.push(rowData.data[0]);
                     sensorDataQueue.deepHmData.push(rowData.data[3]);
                     sensorDataQueue.surfaceHmData.push(rowData.data[2]);
+                    sensorDataQueue.snapshot.push(rowData.data[9]);
                 }
             });
             // console.log(sensorData);
@@ -646,15 +961,16 @@ Agriweather = (function(){
 
     var _getContinueWeatherbox = function(sensorName){
             // console.log(sensorData);
-            var lastTime = weatherboxData.recTime[weatherboxData.recTime.length - 1];
-            var nextTime = moment(lastTime).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
+            //var lastTime = weatherboxData.recTime[weatherboxData.recTime.length - 1];
+            //var nextTime = moment(lastTime).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
             var jqxhr = $.ajax({
                 method: 'POST',
                 url: BASE_URL,
                 data: {
                     sensorName: sensorName,
-                    start: lastTime,
-                    end: nextTime
+                    limit: 5,
+                    //start: lastTime,
+                    //end: nextTime
                 }
             }).done(function(rtnData){
                 // console.log(rtnData.data.row);
@@ -676,12 +992,24 @@ Agriweather = (function(){
             });
     }
 
+    var _playMonitor = function() {
+        if(!monitorTimeHandle){
+            monitorTimeHandle = setInterval(function(){
+            	console.log('drawing:' + drawing);
+            	if (!drawing) {
+            		Agriweather.initialize();
+            		Agriweather.drawMonitor(defaultSensorName);
+            	}
+            }, 5000);
+        }
+    }
+
     var _playSensor = function(){
         if(!sensorTimeHandle){
             sensorTimeHandle = setInterval(function(){
                 console.log(sensorDataQueue.recTime.length);
                 if(sensorDataQueue.recTime.length < 5){
-                    _getContinueSensor('AgriWeather1');
+                    _getContinueSensor(defaultSensorName);
                 }
                 //remove first data
                 sensorData.recTime.shift();
@@ -689,15 +1017,17 @@ Agriweather = (function(){
                 sensorData.surfaceTmpData.shift();
                 sensorData.deepHmData.shift();
                 sensorData.surfaceHmData.shift();
-    
+                sensorData.snapshot.shift();
+
                 sensorData.recTime.push(sensorDataQueue.recTime.shift());
                 sensorData.deepTmpData.push(sensorDataQueue.deepTmpData.shift());
                 sensorData.surfaceTmpData.push(sensorDataQueue.surfaceTmpData.shift());
                 sensorData.deepHmData.push(sensorDataQueue.deepHmData.shift());
                 sensorData.surfaceHmData.push(sensorDataQueue.surfaceHmData.shift());
-    
+                sensorData.snapshot.push(sensorDataQueue.snapshot.shift());
+
                 _updateSensorChart();
-            }, 3000);
+            }, 5000);
         }
     }
 
@@ -706,7 +1036,7 @@ Agriweather = (function(){
             weatherboxTimeHandle = setInterval(function(){
                 console.log(weatherboxDataQueue.recTime.length);
                 if(weatherboxDataQueue.recTime.length < 5){
-                    _getContinueWeatherbox('WeatherBox');
+                    _getContinueWeatherbox(defaultSensorName);
                 }
                 //remove first data
                 weatherboxData.recTime.shift();
@@ -728,17 +1058,20 @@ Agriweather = (function(){
 
     var playChart = function(){
         console.log('click play!');
-        _playSensor();
-        _playWeatherbox();
+        //_playSensor();
+        //_playWeatherbox();
+        _playMonitor();
     }
 
     var pauseChart = function(){
         console.log('click pause!');
-        clearInterval(sensorTimeHandle);
-        sensorTimeHandle = null;
+        // clearInterval(sensorTimeHandle);
+        // sensorTimeHandle = null;
 
-        clearInterval(weatherboxTimeHandle);
-        weatherboxTimeHandle = null;
+        // clearInterval(weatherboxTimeHandle);
+        // weatherboxTimeHandle = null;
+        clearInterval(monitorTimeHandle);
+        monitorTimeHandle = null;
     }
 
     var converLunar = function(strdate){
@@ -756,7 +1089,8 @@ Agriweather = (function(){
         drawWeatherbox: drawWeatherbox,
         playChart: playChart,
         pauseChart: pauseChart,
-        converLunar: converLunar
+        converLunar: converLunar,
+        drawMonitor: drawMonitor
     }
 
 }());
@@ -767,10 +1101,14 @@ $(document).ready(function(){
     var initStartTime = $('#start-time').val();
     var initEndTime = moment(initStartTime).add(2, 'hour').format('YYYY-MM-DD HH:mm:ss');
     Agriweather.initialize();
-    Agriweather.drawSensor('FieldSensorV2.1-001', initStartTime, initEndTime);
-    Agriweather.drawWeatherbox('FieldSensorV2.1-001', initStartTime, initEndTime);
-    $('#lunar-date').text(Agriweather.converLunar(initStartTime));
-
+    Agriweather.drawMonitor(defaultSensorName);
+    // Agriweather.initialize();
+    // Agriweather.drawSensor(defaultSensorName, initStartTime, initEndTime);
+    // Agriweather.drawWeatherbox(defaultSensorName, initStartTime, initEndTime);
+    
+    //$('#lunar-date').text(Agriweather.converLunar(initStartTime));
+    
+    
     $('#play-chart').on('click', function(){
         Agriweather.playChart();
         $(this).addClass('status-runing');
@@ -788,21 +1126,14 @@ $(document).ready(function(){
     });
 
     $('#start-time').change(function(){
-        var initStartTime = $(this).val();
-        var initEndTime = moment(initStartTime).add(2, 'hour').format('YYYY-MM-DD HH:mm:ss');
+        //var initStartTime = $(this).val();
+        //var initEndTime = moment(initStartTime).add(2, 'hour').format('YYYY-MM-DD HH:mm:ss');
         Agriweather.initialize();
-        Agriweather.drawSensor('FieldSensorV2.1-001', initStartTime, initEndTime);
-        Agriweather.drawWeatherbox('FieldSensorV2.1-001', initStartTime, initEndTime);
-        $('#lunar-date').text(Agriweather.converLunar(initStartTime));
+        Agriweather.drawMonitor(defaultSensorName);
+        //Agriweather.drawSensor(defaultSensorName, initStartTime, initEndTime);
+        //Agriweather.drawWeatherbox(defaultSensorName, initStartTime, initEndTime);
+        //$('#lunar-date').text(Agriweather.converLunar(initStartTime));
+
     });
 
 });
-
-setInterval(function() {
-    console.log('interval call')
-    var initStartTime = $('#start-time').val();
-    Agriweather.initialize();
-    Agriweather.drawSensor('FieldSensorV2.1-001', null, null);
-    Agriweather.drawWeatherbox('FieldSensorV2.1-001', null, null);
-    $('#lunar-date').text(Agriweather.converLunar(initStartTime));
-}, 3000)

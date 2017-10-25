@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>阿龜：農用儀表板</title>
+    <title>Agri Dashboard</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -57,13 +57,13 @@
                         <a href="#page-top"></a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="#dashboard">遠端監控</a>
+                        <a class="page-scroll" href="#dashboard">Remote Monitor</a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="#download">系統管理</a>
+                        <a class="page-scroll" href="#download">Settings</a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="#contact">關於阿龜</a>
+                        <a class="page-scroll" href="#contact">About Agriweather</a>
                     </li>
                 </ul>
             </div>
@@ -94,15 +94,16 @@
     <section id="dashboard" class="container content-section text-center">
         <div class="row">
             <div class="col-xs-12 col-md-6 delay-1s text-left">
-                <h2><i class="fa fa-th-large"></i> Agri實驗田-1 &nbsp;&nbsp;
+                <h2><i class="fa fa-th-large"></i> Agri-lab Farm&nbsp;&nbsp;
                     <span id="play-chart" style="cursor:pointer"><i class="fa fa-play-circle-o"></i></span>&nbsp;
                     <span id="pause-chart" style="cursor:pointer"><i class="fa fa-pause-circle-o"></i></span>&nbsp;
-                    <span id="toggle-setting" style="cursor:pointer"><i class="fa fa-cog" aria-hidden="true"></i></span>
+                    <!-- <span id="toggle-setting" style="cursor:pointer"><i class="fa fa-cog" aria-hidden="true"></i></span> -->
                 </h2>
                 <span id="agri-setting" style="display: none;"><input id="start-time" type="text" name="start-time" value="2017-06-30 16:00:00" style="color:black;"></span>
             </div>
-            <div class="col-xs-12 col-md-3 delay-1s text-center" style="border:dotted;">作物：福山萵苣（大陸妹）</div>
-            <div class="col-xs-12 col-md-3 delay-1s text-right"><span id="lunar-date">立秋 後 4 天, 11 天後 处暑</span>
+            <div class="col-xs-12 col-md-3 delay-1s text-center" style="border:dotted;">Crop: Lettuce</div>
+            <div class="col-xs-12 col-md-3 delay-1s text-right">Sync time: <span id="lunar-date"></span>
+            <!-- <div class="col-xs-12 col-md-3 delay-1s text-right"><span id="lunar-date">立秋 後 4 天, 11 天後 处暑</span> -->
             </div>
         </div>
         <div> </div>
@@ -111,33 +112,63 @@
                 <ul class="slides">
                     <li>
                         <div class="col-xs-12 col-md-3 wp4 delay-1s">
-                            <h4><i class="wi wi-thermometer"></i> 大氣溫度</h4>
+                            <h4><i class="wi wi-thermometer"></i> temperature</h4>
                             <h1><span id="wt"></span>℃</h1>
                             <div id="main1" style="width: 100%; height:250px; position: relative; top: -80px ;margin: 0px auto;"></div>
                         </div>
                         <div class="col-xs-12 col-md-3 wp4 delay-1s">
-                            <h4><i class="wi wi-humidity"></i> 大氣濕度</h4>
+                            <h4><i class="wi wi-humidity"></i> humidity</h4>
                             <h1><span id="wh"></span>%</h1>
                             <div id="main2" style="width: 100%;height:250px; position: relative; top: -80px ;margin: 0px auto;"></div>
                         </div>
                         <div class="col-xs-12 col-md-3 wp4 delay-1s">
-                            <h4><i class="wi wi-sunrise"></i> 光照強度</h4>
+                            <h4><i class="wi wi-sunrise"></i> shine intensity</h4>
                             <div id="main3" style="width: 100%;height:200px;position: relative; top: 30px;margin: 0px auto;"></div>
                         </div>
                         <div class="col-xs-12 col-md-3 wp4 delay-1s">
-                            <h4><i class="wi wi-rain"></i> 是否降雨</h4>
-                            <h1>無雨</h1>
+                            <h4><i class="wi wi-rain"></i> rain</h4>
+                            <h1>No Rain</h1>
                             <div id="main4" style="width: 100%;height:250px;position: relative; top: -80px ;margin: 0px auto;"></div>
                         </div>
                     </li>
                     <li>
-                        <div class="col-xs-12 col-md-6 wp6 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
-                            <h4><i class="wi wi-dust"></i> 土壤溫度變化</h4>
+                        <div class="col-xs-12 col-md-4 wp4 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
+                            <h4><i class="wi wi-dust"></i> temperature of soil change</h4>
                             <div id="main5" style="width: 100%;height:300px;"></div>
                         </div>
-                        <div class="col-xs-12 col-md-6 wp6 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
-                            <h4><i class="wi wi-dust"></i> 土壤含水量變化</h4>
+                        <li>
+                            <div class="col-xs-12 col-md-4 wp4 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
+                                <h4><i class="wi wi-dust"></i> field snapshot</h4>
+                                <div id="main7" class="carousel slide" data-ride="carousel" style="width: 100%;height:300px;">
+                                    <div class="carousel-inner">
+                                        
+                                    </div>
+                                    <a class="left carousel-control" href="#main7" data-slide="prev">
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="right carousel-control" href="#main7" data-slide="next">
+                                        <span class="glyphicon glyphicon-chevron-right"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        <div class="col-xs-12 col-md-4 wp4 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
+                            <h4><i class="wi wi-dust"></i> moisture contents change</h4>
                             <div id="main6" style="width: 100%;height:300px;"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="slides">
+                    <li>
+                        <div class="col-xs-12 col-md-12 wp4 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
+                            <h4><i class="wi wi-dust"></i> anemometer and weed direction</h4>
+                            <div id="main8" style="width: 100%;height: 600px;"></div>
                         </div>
                     </li>
                 </ul>
@@ -150,7 +181,7 @@
         <div class="container text-center">
             <p>
                 <a href="https://grants.g0v.tw/power/" target="_blank"><img src="https://grants.g0v.tw/images/power/poweredby-long-i.svg" alt="Powered by g0v" style="width:35%;height:35%"/></a>
-                <span class="copyright">Copyright &copy; 2017 <a href="https://www.facebook.com/agriweather/" target="_blank">阿龜微氣候天眼通團隊</a> All Rights Reserved.</span>
+                <span class="copyright">Copyright &copy; 2017 <a href="https://www.facebook.com/agriweather/" target="_blank">AgriWeather Teams</a> All Rights Reserved.</span>
             </p>
         </div>
     </footer>
