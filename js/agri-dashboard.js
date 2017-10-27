@@ -1,5 +1,5 @@
 var Agriweather;
-var defaultSensorName = 'FieldSensorV2.1-002';
+var defaultSensorName = 'FieldSensorV2.1-003';
 
 Agriweather = (function(){
     if (!window.jQuery) { throw new Error("LikeButtonModule requires jQuery") }
@@ -243,7 +243,7 @@ Agriweather = (function(){
      * @param {object} weatherboxData 
      */
     var _drawWeatherTemperature = function(weatherboxData){
-        var lastValue = weatherboxData.temperature[weatherboxData.temperature.length - 1];
+        var lastValue = weatherboxData.temperature.reverse()[weatherboxData.temperature.length - 1];
         $('#wt').text(Math.round(lastValue.value[1]));
     
         option1 = {
@@ -269,6 +269,7 @@ Agriweather = (function(){
             },
             yAxis: {
                 type: 'value',
+				max:60,
                 boundaryGap: [0, '100%'],
                 splitLine: {
                     show: false
@@ -279,7 +280,7 @@ Agriweather = (function(){
                 type: 'line',
                 showSymbol: false,
                 hoverAnimation: false,
-                data: weatherboxData.temperature
+                data: weatherboxData.temperature.reverse()
             }]
         };
         
@@ -292,7 +293,7 @@ Agriweather = (function(){
      * @param {Object} weatherboxData 
      */
     var _drawWeatherHumidity = function(weatherboxData){
-        var lastValue = weatherboxData.humidity[weatherboxData.humidity.length - 1];
+        var lastValue = weatherboxData.humidity.reverse()[weatherboxData.humidity.length - 1];
         $('#wh').text(Math.round(lastValue.value[1]));
     
         option2 = {
@@ -330,6 +331,8 @@ Agriweather = (function(){
             },
             yAxis: {
                 type: 'value',
+				min:0,
+				max:120,
                 boundaryGap: [0, '100%'],
                 splitLine: {
                     show: false
@@ -340,7 +343,7 @@ Agriweather = (function(){
                 type: 'line',
                 showSymbol: false,
                 hoverAnimation: false,
-                data: weatherboxData.humidity
+                data: weatherboxData.humidity.reverse()
             }]
         };
         
@@ -520,10 +523,12 @@ Agriweather = (function(){
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
-                data: sensorData.recTime,
+                data: sensorData.recTime.reverse(),
             },
             yAxis: {
                 type: 'value',
+				min:0,
+                max:60,
                 axisLabel: {
                     formatter: '{value} °C'
                 }
@@ -532,7 +537,7 @@ Agriweather = (function(){
                 {
                     name: 'shallow layer temperature',
                     type: 'line',
-                    data: sensorData.surfaceTmpData,
+                    data: sensorData.surfaceTmpData.reverse(),
                     markPoint: {
                         data: [
                             { type: 'max', name: 'max' },
@@ -575,6 +580,8 @@ Agriweather = (function(){
             },
             yAxis: {
                 type: 'value',
+				min:0,
+                max:120,
                 axisLabel: {
                     formatter: '{value} rh'
                 }
@@ -596,7 +603,7 @@ Agriweather = (function(){
                     name: 'shallow layer humidity',
 					color: '#33FFFF',
                     type: 'line',
-                    data: sensorData.surfaceHmData,
+                    data: sensorData.surfaceHmData.reverse(),
                     markPoint: {
                         data: [
                             { type: 'max', name: 'max' },
@@ -622,9 +629,31 @@ Agriweather = (function(){
      */
     var _drawFieldSnapshot = function(sensorData) {
         var carousel = $('#main7 div.carousel-inner');
-        carousel.empty();
+        //carousel.empty();
 
         $.each(sensorData.snapshot, function(index, snapshot){
+			if(snapshot.length>100){
+				console.log("has image");
+				carousel.empty();
+				var image = new Image();
+				image.src = 'data:image/png;base64,' + snapshot;
+				image.style.width = '100%';
+				document.body.appendChild(image);
+				
+				var divCarouselCaption =  document.createElement('div');
+				divCarouselCaption.className = 'carousel-caption';
+				divCarouselCaption.style.bottom = '-40px';
+				//divCarouselCaption.innerHTML = '<h5>' + sensorData.recTime[index] + '</h5>';
+
+				divItem.appendChild(image);
+				divItem.appendChild(divCarouselCaption);
+
+				carousel.append(divItem);     
+			}else{
+				console.log("no image");
+			}
+			
+			/** old
             var divItem = document.createElement('div');
             if (index === 0) {
                 divItem.className = 'item active';
@@ -643,7 +672,8 @@ Agriweather = (function(){
             divItem.appendChild(image);
             divItem.appendChild(divCarouselCaption);
 
-            carousel.append(divItem);            
+            carousel.append(divItem);     
+			**/			
         });
     }
 
@@ -656,7 +686,7 @@ Agriweather = (function(){
         var data = [];
 
         echarts.util.each(weatherboxData.recTime, function (time, index) {
-            data.push([time, weatherboxData.windspeed[index], weatherboxData.winddirection[index]]);
+            data.push([time, weatherboxData.windspeed.reverse()[index], weatherboxData.winddirection.reverse()[index]]);
         });
     
         var dims = {
@@ -845,8 +875,8 @@ Agriweather = (function(){
      * @param {object} weatherboxData 
      */
     var _drawAtmo = function(weatherboxData){
-		var lastValue = weatherboxData.atmo[weatherboxData.atmo.length - 1];
-		console.log(lastValue);
+		var lastValue = weatherboxData.atmo.reverse()[weatherboxData.atmo.length - 1];
+		//console.log(lastValue);
 		$('#at').text(Math.round(lastValue.value[1]));
         var option9 = {
             title: {
@@ -893,7 +923,7 @@ Agriweather = (function(){
                 type: 'line',
                 showSymbol: false,
                 hoverAnimation: false,
-                data: weatherboxData.atmo
+                data: weatherboxData.atmo.reverse()
             }]
         };
         
