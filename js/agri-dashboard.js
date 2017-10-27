@@ -1,5 +1,5 @@
 var Agriweather;
-var defaultSensorName = 'FieldSensorV2.1-001';
+var defaultSensorName = 'FieldSensorV2.1-002';
 
 Agriweather = (function(){
     if (!window.jQuery) { throw new Error("LikeButtonModule requires jQuery") }
@@ -7,13 +7,13 @@ Agriweather = (function(){
     // gives the global variable a local reference.
     var $ = window.jQuery;
     var hostName = location.hostname;
-    hostName += ":8080";
+    // hostName += ":8080";
     var drawing = false;
     // var BASE_URL = 'http://52.175.204.58/MobileV2/GetAgriSensorData';
     var BASE_URL = "http://" + hostName + "/MobileV2/Monitor";
     var sensorData , weatherboxData, sensorDataQueue, weatherboxDataQueue;
 
-    var myChart1, myChart2, myChart3, myChart4, myChart5, myChart6, myChart8;
+    var myChart1, myChart2, myChart3, myChart4, myChart5, myChart6, myChart8, myChart9;
     var sensorTimeHandle = null, weatherboxTimeHandle = null, monitorTimeHandle;
     var directionMap = {};
     
@@ -38,7 +38,8 @@ Agriweather = (function(){
             illuminance: [],
             rainfall:[],
             windspeed:[],
-            winddirection:[]
+            winddirection:[],
+			atmo:[]
         }
     
         sensorDataQueue = {
@@ -57,7 +58,8 @@ Agriweather = (function(){
             illuminance: [],
             rainfall:[],
             windspeed:[],
-            winddirection:[]
+            winddirection:[],
+			atmo:[]
         }
 
         myChart1 = echarts.init(document.getElementById('main1'), 'dark');
@@ -67,6 +69,8 @@ Agriweather = (function(){
         myChart5 = echarts.init(document.getElementById('main5'), 'dark');
         myChart6 = echarts.init(document.getElementById('main6'), 'dark');
         myChart8 = echarts.init(document.getElementById('main8'), 'dark');
+		myChart9 = echarts.init(document.getElementById('main9'), 'dark');
+		
 
         echarts.util.each(
             ['W', 'WSW', 'SW', 'SSW', 'S', 'SSE', 'SE', 'ESE', 'E', 'ENE', 'NE', 'NNE', 'N', 'NNW', 'NW', 'WNW'],
@@ -102,7 +106,8 @@ Agriweather = (function(){
                     weatherboxData.temperature.push({value: [rowData.cd, rowData.data[0]]});
                     weatherboxData.humidity.push({value: [rowData.cd, rowData.data[1]]});
                     weatherboxData.illuminance.push(rowData.data[3]);
-                    weatherboxData.rainfall.push(!rowData.data[8]?0:rowData.data[8]);
+                    weatherboxData.rainfall.push({value: [rowData.cd, !rowData.data[8]?0:rowData.data[8]]});
+					weatherboxData.atmo.push({value: [rowData.cd, rowData.data[2]]});
 
                     var winddirection = rowData.data[6];
                     var targetKey = 'W';
@@ -130,6 +135,7 @@ Agriweather = (function(){
             _drawIlluminance(weatherboxData);
             _drawRainfall(weatherboxData);
             _drawWindspendAnddirection(weatherboxData);
+			_drawAtmo(weatherboxData);
             drawing = false;
             // console.log(sensorData);
         }).fail(function(){
@@ -216,7 +222,8 @@ Agriweather = (function(){
                     weatherboxData.temperature.push({value: [rowData.cd, rowData.data[0]]});
                     weatherboxData.humidity.push({value: [rowData.cd, rowData.data[1]]});
                     weatherboxData.illuminance.push(rowData.data[3]);
-                    weatherboxData.rainfall.push(!rowData.data[8]?0:rowData.data[8]);
+                    weatherboxData.rainfall.push({value: [rowData.cd, !rowData.data[8]?0:rowData.data[8]]});				
+					weatherboxData.atmo.push({value: [rowData.cd, rowData.data[2]]});
                 }
             });
         }).fail(function(){
@@ -226,6 +233,7 @@ Agriweather = (function(){
             _drawWeatherHumidity(weatherboxData);
             _drawIlluminance(weatherboxData);
             _drawRainfall(weatherboxData);
+			_drawAtmo(weatherboxData);
         });
     }
 
@@ -442,13 +450,30 @@ Agriweather = (function(){
      * @param {object} weatherboxData 
      */
     var _drawRainfall = function(weatherboxData){
+		var lastValue = weatherboxData.rainfall[weatherboxData.rainfall.length - 1];
+		if(Math.round(lastValue.value[1])==0 || Math.round(lastValue.value[1])==null){
+			$('#rf').text("NO RAIN");
+		}else if(Math.round(lastValue.value[1])<=3){
+			$('#rf').text("Drizzle");
+		}else if(Math.round(lastValue.value[1])<=15){
+			$('#rf').text("Light Rain");
+		}else if(Math.round(lastValue.value[1])<=40){
+			$('#rf').text("Moderate Rain");
+		}else if(Math.round(lastValue.value[1])<=80){
+			$('#rf').text("Heavy Rain");
+		}else if(Math.round(lastValue.value[1])<=200){
+			$('#rf').text("Pouring Rain");
+		}else{
+			$('#rf').text("Torrential Rain");
+		}			
+		
         option4 = {
             title: {
                 //text: '柱状图动画延迟'
             },
             tooltip: {},
             xAxis: {
-                data: weatherboxData.recTime,
+                data: weatherboxData.recTime.reverse(),
                 silent: false,
                 splitLine: {
                     show: false
@@ -459,7 +484,7 @@ Agriweather = (function(){
             series: [{
                 name: '降雨量',
                 type: 'bar',
-                data: weatherboxData.rainfall,
+                data: weatherboxData.rainfall.reverse(),
                 animationDelay: function (idx) {
                     return idx * 10;
                 }
@@ -490,7 +515,7 @@ Agriweather = (function(){
                 trigger: 'axis'
             },
             legend: {
-                data: ['shallow layer temperature', 'deep layer temperature']
+                data: ['shallow layer temperature']
             },
             xAxis: {
                 type: 'category',
@@ -519,36 +544,6 @@ Agriweather = (function(){
                             { type: 'average', name: 'average' }
                         ]
                     }
-                },
-                {
-                    name: 'deep layer temperature',
-                    type: 'line',
-                    data: sensorData.deepTmpData,
-                    markPoint: {
-                        data: [
-                            { name: '最低', value: -2, xAxis: 1, yAxis: -1.5 }
-                        ]
-                    },
-                    markLine: {
-                        data: [
-                            { type: 'average', name: 'average' },
-                            [{
-                                symbol: 'none',
-                                x: '90%',
-                                yAxis: 'max'
-                            }, {
-                                symbol: 'circle',
-                                label: {
-                                    normal: {
-                                        position: 'start',
-                                        formatter: 'max'
-                                    }
-                                },
-                                type: 'max',
-                                name: 'max'
-                            }]
-                        ]
-                    }
                 }
             ]
         };
@@ -571,7 +566,7 @@ Agriweather = (function(){
                 trigger: 'axis'
             },
             legend: {
-                data: ['shallow layer humidity', 'deep layer humidity']
+                data: ['shallow layer humidity']
             },
             xAxis: {
                 type: 'category',
@@ -584,9 +579,22 @@ Agriweather = (function(){
                     formatter: '{value} rh'
                 }
             },
+            itemStyle: {
+                normal: {
+                    color: '#33FFFF',
+                    lineStyle: {        // 系列级个性化折线样式
+                        width: 2,
+                        type: 'dashed'
+                    }
+                },
+                emphasis: {
+                    color: 'white'
+                }
+            },
             series: [
                 {
                     name: 'shallow layer humidity',
+					color: '#33FFFF',
                     type: 'line',
                     data: sensorData.surfaceHmData,
                     markPoint: {
@@ -598,36 +606,6 @@ Agriweather = (function(){
                     markLine: {
                         data: [
                             { type: 'average', name: 'average' }
-                        ]
-                    }
-                },
-                {
-                    name: 'deep layer humidity',
-                    type: 'line',
-                    data: sensorData.deepHmData,
-                    markPoint: {
-                        data: [
-                            { name: 'min', value: -2, xAxis: 1, yAxis: -1.5 }
-                        ]
-                    },
-                    markLine: {
-                        data: [
-                            { type: 'average', name: 'average' },
-                            [{
-                                symbol: 'none',
-                                x: '90%',
-                                yAxis: 'max'
-                            }, {
-                                symbol: 'circle',
-                                label: {
-                                    normal: {
-                                        position: 'start',
-                                        formatter: 'max'
-                                    }
-                                },
-                                type: 'max',
-                                name: 'max'
-                            }]
                         ]
                     }
                 }
@@ -732,7 +710,7 @@ Agriweather = (function(){
                 }
             },
             grid: {
-                top: 160,
+                top: 70,
                 bottom: 125
             },
             xAxis: {
@@ -770,6 +748,9 @@ Agriweather = (function(){
                 orient: 'horizontal',
                 left: 'center',
                 bottom: 10,
+				textStyle: {
+					color: 'white'
+				},
                 pieces: [{
                     gte: 17,
                     color: '#18BF12',
@@ -806,6 +787,9 @@ Agriweather = (function(){
                 showSymbol: false,
                 hoverAnimation: false,
                 symbolSize: 10,
+				textStyle: {
+					color: 'white'
+				},
                 areaStyle: {
                     normal: {
                         color: {
@@ -855,6 +839,67 @@ Agriweather = (function(){
         myChart8.setOption(option8);
     }
     
+	/**
+     * 繪製「氣壓」圖形
+     * 
+     * @param {object} weatherboxData 
+     */
+    var _drawAtmo = function(weatherboxData){
+		var lastValue = weatherboxData.atmo[weatherboxData.atmo.length - 1];
+		console.log(lastValue);
+		$('#at').text(Math.round(lastValue.value[1]));
+        var option9 = {
+            title: {
+                //text: '动态数据 + 时间坐标轴'
+            },
+            tooltip: {
+                trigger: 'axis',
+                // formatter: function (params) {
+                //     params = params[0];
+                //     var date = new Date(params.name);
+                //     return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
+                // },
+                axisPointer: {
+                    animation: false
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: '#33FFFF',
+                    lineStyle: {        // 系列级个性化折线样式
+                        width: 2,
+                        type: 'dashed'
+                    }
+                },
+                emphasis: {
+                    color: 'white'
+                }
+            },
+            xAxis: {
+                type: 'time',
+                splitLine: {
+                    show: false
+                }
+            },
+            yAxis: {
+                type: 'value',
+                boundaryGap: [0, '100%'],
+                splitLine: {
+                    show: false
+                }
+            },
+            series: [{
+                name: 'atmospheric',
+                type: 'line',
+                showSymbol: false,
+                hoverAnimation: false,
+                data: weatherboxData.atmo
+            }]
+        };
+        
+        myChart9.setOption(option9);
+    }
+	
     /**
      * 更新田間感測器圖形
      */
@@ -994,6 +1039,7 @@ Agriweather = (function(){
     }
 
     var _playMonitor = function() {
+		console.log(defaultSensorName);
         if(!monitorTimeHandle){
             monitorTimeHandle = setInterval(function(){
             	console.log('drawing:' + drawing);
@@ -1001,7 +1047,7 @@ Agriweather = (function(){
             		Agriweather.initialize();
             		Agriweather.drawMonitor(defaultSensorName);
             	}
-            }, 5000);
+            }, 10000);
         }
     }
 
@@ -1103,6 +1149,7 @@ $(document).ready(function(){
     var initEndTime = moment(initStartTime).add(2, 'hour').format('YYYY-MM-DD HH:mm:ss');
     Agriweather.initialize();
     Agriweather.drawMonitor(defaultSensorName);
+	Agriweather.playChart();
     // Agriweather.initialize();
     // Agriweather.drawSensor(defaultSensorName, initStartTime, initEndTime);
     // Agriweather.drawWeatherbox(defaultSensorName, initStartTime, initEndTime);
@@ -1136,5 +1183,12 @@ $(document).ready(function(){
         //$('#lunar-date').text(Agriweather.converLunar(initStartTime));
 
     });
-
+	
+	$('#sensorName').change(function(){
+		console.log("sensor change:"+ $('#sensorName').val());
+		defaultSensorName = $('#sensorName').val();
+		Agriweather.drawMonitor(defaultSensorName);
+		//Agriweather.playChart();
+	});
+	
 });

@@ -57,14 +57,27 @@
                         <a href="#page-top"></a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="#dashboard">Remote Monitor</a>
+                        <a class="page-scroll" href="#dashboard">Remote Monitor 1</a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="#download">Settings</a>
+                        <a class="page-scroll" href="#dashboard2">Monitor 2</a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="#contact">About Agriweather</a>
+                        <a class="page-scroll" href="#contact">About</a>
                     </li>
+					<li>
+                        <a class="page-scroll" href="#team">Team Members</a>
+                    </li>
+					<li style="position: relative; top: 5px ;margin: 0px auto;display: inline-block;vertical-align: middle;">
+						<div class="form-group">
+							<select id="sensorName" class="form-control">
+								<option>FIeldSensorV2.1-001</option>
+								<option selected="selected">FIeldSensorV2.1-002</option>
+								<option>FIeldSensorV2.1-003</option>
+								<option>FIeldSensorV2.1-004</option>
+							</select>
+						</div>
+					</li>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -101,7 +114,7 @@
                 </h2>
                 <span id="agri-setting" style="display: none;"><input id="start-time" type="text" name="start-time" value="2017-06-30 16:00:00" style="color:black;"></span>
             </div>
-            <div class="col-xs-12 col-md-3 delay-1s text-center" style="border:dotted;">Crop: Lettuce</div>
+            <div class="col-xs-12 col-md-3 delay-1s text-center" style="border:dotted;">Crop: Golden Hahnii</div>
             <div class="col-xs-12 col-md-3 delay-1s text-right">Sync time: <span id="lunar-date"></span>
             <!-- <div class="col-xs-12 col-md-3 delay-1s text-right"><span id="lunar-date">立秋 後 4 天, 11 天後 处暑</span> -->
             </div>
@@ -111,71 +124,197 @@
             <div class="col-lg-12">
                 <ul class="slides">
                     <li>
-                        <div class="col-xs-12 col-md-3 wp4 delay-1s">
+                        <div class="col-xs-12 col-md-4 wp4 delay-1s">
                             <h4><i class="wi wi-thermometer"></i> temperature</h4>
                             <h1><span id="wt"></span>℃</h1>
-                            <div id="main1" style="width: 100%; height:250px; position: relative; top: -80px ;margin: 0px auto;"></div>
+                            <div id="main1" style="width: 100%; height:220px; position: relative; top: -80px ;margin: 0px auto;"></div>
                         </div>
-                        <div class="col-xs-12 col-md-3 wp4 delay-1s">
+                        <div class="col-xs-12 col-md-4 wp4 delay-1s">
                             <h4><i class="wi wi-humidity"></i> humidity</h4>
                             <h1><span id="wh"></span>%</h1>
-                            <div id="main2" style="width: 100%;height:250px; position: relative; top: -80px ;margin: 0px auto;"></div>
+                            <div id="main2" style="width: 100%;height:220px; position: relative; top: -80px ;margin: 0px auto;"></div>
                         </div>
-                        <div class="col-xs-12 col-md-3 wp4 delay-1s">
-                            <h4><i class="wi wi-sunrise"></i> shine intensity</h4>
-                            <div id="main3" style="width: 100%;height:200px;position: relative; top: 30px;margin: 0px auto;"></div>
-                        </div>
-                        <div class="col-xs-12 col-md-3 wp4 delay-1s">
-                            <h4><i class="wi wi-rain"></i> rain</h4>
-                            <h1>No Rain</h1>
-                            <div id="main4" style="width: 100%;height:250px;position: relative; top: -80px ;margin: 0px auto;"></div>
-                        </div>
+                        
+						<div class="col-xs-12 col-md-4 wp4 delay-1s" style="position: relative; top: -0px ;margin: 0px auto;">
+							<h4><i class="fa fa-camera-retro"></i> field snapshot </h4>
+							<div id="main7" class="carousel slide" data-ride="carousel" style="width: 100%;height:210px;">
+							<img src="img/realpic.jpg" alt="snapshot" width="90%" height="90%"></div>
+								<!--
+								<div class="carousel-inner">
+									
+								</div>
+								<a class="left carousel-control" href="#main7" data-slide="prev">
+									<span class="glyphicon glyphicon-chevron-left"></span>
+									<span class="sr-only">Previous</span>
+								</a>
+								<a class="right carousel-control" href="#main7" data-slide="next">
+									<span class="glyphicon glyphicon-chevron-right"></span>
+									<span class="sr-only">Next</span>
+								</a>
+								-->
+							</div>	
+						</div>   
                     </li>
                     <li>
-                        <div class="col-xs-12 col-md-4 wp4 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
+                        <div class="col-xs-12 col-md-6 wp6 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
                             <h4><i class="wi wi-dust"></i> temperature of soil change</h4>
-                            <div id="main5" style="width: 100%;height:300px;"></div>
+                            <div id="main5" style="width: 100%;height:250px;"></div>
                         </div>
-                        <li>
-                            <div class="col-xs-12 col-md-4 wp4 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
-                                <h4><i class="wi wi-dust"></i> field snapshot</h4>
-                                <div id="main7" class="carousel slide" data-ride="carousel" style="width: 100%;height:300px;">
-                                    <div class="carousel-inner">
-                                        
-                                    </div>
-                                    <a class="left carousel-control" href="#main7" data-slide="prev">
-                                        <span class="glyphicon glyphicon-chevron-left"></span>
-                                        <span class="sr-only">Previous</span>
-                                    </a>
-                                    <a class="right carousel-control" href="#main7" data-slide="next">
-                                        <span class="glyphicon glyphicon-chevron-right"></span>
-                                        <span class="sr-only">Next</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <div class="col-xs-12 col-md-4 wp4 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
+                        <div class="col-xs-12 col-md-6 wp6 delay-1s" style="position: relative; top: -60px ;margin: 0px auto;">
                             <h4><i class="wi wi-dust"></i> moisture contents change</h4>
-                            <div id="main6" style="width: 100%;height:300px;"></div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <ul class="slides">
-                    <li>
-                        <div class="col-xs-12 col-md-12 wp4 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
-                            <h4><i class="wi wi-dust"></i> anemometer and weed direction</h4>
-                            <div id="main8" style="width: 100%;height: 600px;"></div>
+                            <div id="main6" style="width: 100%;height:250px;"></div>
                         </div>
                     </li>
                 </ul>
             </div>
         </div>
     </section>
-
+	
+	<!-- Dashboard Section -->
+    <section id="dashboard2" class="container content-section text-center">
+        <div class="row">
+			<div class="col-lg-12">
+                <ul class="slides">
+					<li>
+						<div class="col-xs-12 col-md-4 wp4 delay-1s">
+                            <h4><i class="wi wi-sunrise"></i> shine intensity</h4>
+                            <div id="main3" style="width: 100%;height:250px;position: relative; top: 0px;margin: 0px auto;"></div>
+                        </div>
+						<div class="col-xs-12 col-md-4 wp4 delay-1s">
+                            <h4><i class="wi wi-hurricane"></i> atmospheric</h4>
+                            <h1><span id="at"></span></h1>
+                            <div id="main9" style="width: 100%;height:250px; position: relative; top: -80px ;left:10px;margin: 0px auto;"></div>
+                        </div>
+						<div class="col-xs-12 col-md-4 wp4 delay-1s">
+                            <h4><i class="wi wi-rain"></i> rain</h4>
+                            <h1><span id="rf">No Rain</span></h1>
+                            <div id="main4" style="width: 100%;height:250px;position: relative; top: -80px ;margin: 0px auto;"></div>
+                        </div>
+					</li>
+                    <li>
+                        <div class="col-xs-12 col-md-12 wp4 delay-1s" style="position: relative; top: -40px ;margin: 0px auto;">
+                            <h4><i class="wi wi-dust"></i> anemometer and weed direction</h4>
+                            <div id="main8" style="position: relative; top: -80px ;margin: 0px auto;width: 100%;height: 300px;"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+		</div>
+    </section>
+	
+	<hr>
+    <section id="contact" class="container content-section text-center">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2">
+                <h2>Agri Micro-Weather Station</h2>
+				<h4>AgriWeather Team from Taiwan</h4>
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/3UTwtv06avg" frameborder="0" allowfullscreen></iframe>
+				<p class="text-left">Agriweather aims to create a new tool, combined IOT device with data science based on the application of agriculture microclimate, open data and experts’ knowledge, to help urban farmers.</p>
+                <div class="row">
+                    <div class="col-xs-12 col-md-4 wp4 delay-1s text-right"><img src="img/pic10.png" width="160px" alt="agriweather"></div>
+					<div class="col-xs-12 col-md-8 wp4 delay-1s text-left"><p>This team of AgriWeather supported by the development of “g0v” project in Taiwan consists of multi-disciplinary experts, such as data scientists, IT farmers, makers, software engineers, agricultural experts, communication researchers, art designers, and so on. The core perspective of the team is to take effort to develop Taiwan’s agriculture well.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+	
+	<hr>
+	
+	<section class="container content-section text-center"id="team">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                <h1 class="arrow">AgriWeather Contributors</h1>
+              </div>
+            </div>
+            <div class="row">
+              <div class="team-wrapper">
+                <div id="teamSlider">
+                  <ul class="slides">
+                    <li>
+                      <div class="col-md-3 wp3">
+                        <img src="img/member1.jpg" height="200px" class="img-circle" alt="Shaw Wu">
+                        <h3>Shaw Wu</h3>
+                        <h6>Group learder/ Data scientist</h6>
+                      </div>
+                      <div class="col-md-3 wp3">
+                        <img src="img/member2.jpg" height="200px" class="img-circle" alt="Kobe Yu">
+                        <h3>Kobe Yu</h3>
+                        <h6>Hardware/ Software engineer</h6>
+                      </div>
+					  <div class="col-md-3 wp3">
+                        <img src="img/member3.jpg" height="200px" class="img-circle" alt="Freya Hu">
+                        <h3>Freya Hu</h3>
+                        <h6>Contact Window/ Data analysis</h6>
+                      </div>
+					  <div class="col-md-3 wp3">
+                        <img src="img/member4.jpg" height="200px" class="img-circle" alt="Chen, Sing-Yan">
+                        <h3>Chen, Sing-Yan</h3>
+                        <h6>IT farmer</h6>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="col-md-3 wp3">
+                        <img src="img/member5.jpg" height="200px" class="img-circle" alt="SHIH, SHIUH-FENG">
+                        <h3>SHIH, SHIUH-FENG</h3>
+                        <h6>System engineer</h6>
+                      </div>
+					  <div class="col-md-3 wp3">
+                        <img src="img/member6.jpg" height="200px" class="img-circle" alt="Chang, Yu-Cheng">
+                        <h3>Chang, Yu-Cheng</h3>
+                        <h6>Software engineer</h6>
+                      </div>
+					  <div class="col-md-3 wp3">
+                        <img src="img/member7.jpg" height="200px" class="img-circle" alt="Pan, Tsung-Tso">
+                        <h3>Pan, Tsung-Tso</h3>
+                        <h6>Front-end engineer</h6>
+                      </div>
+					  <div class="col-md-3 wp3">
+                        <img src="img/member8.jpg" height="200px" class="img-circle" alt="Liang, Fang-Ci">
+                        <h3>Liang, Fang-Ci</h3>
+                        <h6>Art designer</h6>
+                      </div>
+                    </li>
+					<li>
+                      <div class="col-md-3 wp3">
+                        <img src="img/member9.jpg" height="200px" class="img-circle" alt="York, Lin">
+                        <h3>York, Lin</h3>
+                        <h6>Business planner</h6>
+                      </div>
+					  <div class="col-md-3 wp3">
+                        <img src="img/member10.jpg" height="200px" class="img-circle" alt="Lu, An-Bang">
+                        <h3>Lu, An-Bang</h3>
+                        <h6>Mass media researcher</h6>
+                      </div>
+					  <div class="col-md-3 wp3">
+                        <img src="img/member11.jpg" height="200px" class="img-circle" alt="Yang, Zong-Ru">
+                        <h3>Yang, Zong-Ru</h3>
+                        <h6>Director</h6>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+			   <ul class="list-inline banner-social-buttons" class="text-left">
+					<li class="text-center"><img src="img/logo3.png" width="40%" alt="agriweather"></li>
+                    <li>
+                        <a href="https://www.facebook.com/agriweather/" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-facebook fa-fw"></i> <span class="network-name">Facebook</span></a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/Agriweather" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
+                    </li>
+                    <li>
+                        <a href="mailto:shaldrem@gmail.com" target="_blank" class="btn btn-default btn-lg"><i class="fa fa-envelope-o fa-fw"></i> <span class="network-name">E-Mail</span></a>
+                    </li>
+					<li class="text-center"><img src="img/logo3.png" width="40%" alt="agriweather"></li>
+                </ul>
+				<hr>
+            </div>
+			
+               
+          </div>
+        </section>
+		
     <!-- Footer -->
     <footer>
         <div class="container text-center">
